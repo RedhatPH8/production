@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using SIMPL.Models;
 //using EFGetStarted.AspNetCore.ExistingDb.Models; https://docs.microsoft.com/en-us/ef/core/get-started/aspnetcore/existing-db#register-your-context-with-dependency-injection
 
 
@@ -24,6 +26,13 @@ namespace SIMPL
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<project_trackerContext>(options =>
+                options.UseSqlServer(Configuration["Data:project_trackerContext:ConnectionString"]));
+
+            services.AddIdentity<AspNetUsers, IdentityRole>()
+                .AddEntityFrameworkStores<project_trackerContext>()
+                .AddDefaultTokenProviders();
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -52,7 +61,8 @@ namespace SIMPL
             }
 
             app.UseStaticFiles();
-
+            app.UseStatusCodePages();
+            app.UseAuthentication();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
